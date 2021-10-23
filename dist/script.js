@@ -1845,11 +1845,74 @@ module.exports = g;
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _modules_slider__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./modules/slider */ "./src/js/modules/slider.js");
+/* harmony import */ var _modules_playVideo__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./modules/playVideo */ "./src/js/modules/playVideo.js");
+
 
 window.addEventListener('DOMContentLoaded', () => {
   const slider = new _modules_slider__WEBPACK_IMPORTED_MODULE_0__["default"]('.page', '.next');
   slider.render();
+  const player = new _modules_playVideo__WEBPACK_IMPORTED_MODULE_1__["default"]('.showup .play', '.overlay');
+  player.init();
 });
+
+/***/ }),
+
+/***/ "./src/js/modules/playVideo.js":
+/*!*************************************!*\
+  !*** ./src/js/modules/playVideo.js ***!
+  \*************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return VideoPlayer; });
+class VideoPlayer {
+  constructor(triggers, overlay) {
+    this.btns = document.querySelectorAll(triggers);
+    this.overlay = document.querySelector(overlay);
+    this.close = this.overlay.querySelector('.close');
+  }
+
+  bindTriggers() {
+    this.btns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (document.querySelector('iframe#frame')) {
+          this.overlay.style.display = 'flex';
+        } else {
+          const path = btn.getAttribute('data-url');
+          this.createPlayer(path);
+        }
+      });
+    });
+  }
+
+  bindCloseBtn() {
+    this.close.addEventListener('click', () => {
+      this.overlay.style.display = 'none';
+      this.player.stopVideo();
+    });
+  }
+
+  createPlayer(url) {
+    this.player = new YT.Player('frame', {
+      height: '100%',
+      width: '100%',
+      videoId: `${url}`
+    });
+    this.overlay.style.display = 'flex';
+  }
+
+  init() {
+    const tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    const firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    this.bindTriggers();
+    this.bindCloseBtn();
+  }
+
+}
 
 /***/ }),
 
@@ -1883,6 +1946,22 @@ class Slider {
       this.slideIndex = this.slides.length;
     }
 
+    try {
+      this.hanson.style.opacity = '0';
+
+      if (this.slideIndex === 3) {
+        this.hanson.classList.add('animated');
+        setTimeout(() => {
+          if (this.slideIndex === 3) {
+            this.hanson.style.opacity = '1';
+            this.hanson.classList.add('slideInUp');
+          }
+        }, 3000);
+      } else {
+        this.hanson.classList.remove('slideInUp');
+      }
+    } catch (e) {}
+
     for (let item of this.slides) {
       item.style.display = 'none';
     }
@@ -1895,6 +1974,10 @@ class Slider {
   }
 
   render() {
+    try {
+      this.hanson = document.querySelector('.hanson');
+    } catch (e) {}
+
     this.btns.forEach(btn => {
       btn.addEventListener('click', () => {
         this.plusSlides(1);
